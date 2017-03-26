@@ -53,7 +53,7 @@ var boardButtonCallback = function(t){
         }
       },
       {
-        text: 'Open Board Bar',
+        text: 'Project Stats',
         callback: function(t){
           return t.boardBar({
             url: './board-bar.html',
