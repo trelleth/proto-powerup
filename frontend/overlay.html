@@ -3,14 +3,17 @@
     <link rel="stylesheet" href="https://trello.com/power-ups/power-up.css">
     <link rel="stylesheet" href="./css/overlay.css">
     <script src="https://trello.com/power-ups/power-up.min.js"></script>
+    <script src="./bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="./poly-test.html">
+
   </head>
   <body>
     <div id="content">
       <div class="mod-centered">
-      <h2>Tokenize this task</h2>
+      <h2>Trelleth this board</h2>
       <hr/>
-      <p>You are about to tokenize this task. Please sign the metamask transaction and wait.</p>
-      <button id="icobtn" class="mod-primary mod-centered">I want to do an ICO for this card</button>
+      <poly-test name="This is polymer :)"></poly-test>
+      <trelleth-getboard></trelleth-getboard>
     </div>
       <!-- <ol>
         <li>You should only call t.overlay() as a response to a user action, such as clicking a button.</li>

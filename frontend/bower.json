@@ -1,0 +1,21 @@
+{
+  "name": "frontend",
+  "homepage": "https://github.com/trelleth/proto-powerup",
+  "authors": [
+    "Michael Thuy <michael@thuy.be>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "^1.8.1",
+    "iron-pages": "^1.0.8"
+  }
+}
