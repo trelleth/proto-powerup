@@ -4,25 +4,14 @@
     <link rel="stylesheet" href="./css/overlay.css">
     <script src="https://trello.com/power-ups/power-up.min.js"></script>
     <script src="./bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="./poly-test.html">
+    <link rel="import" href="./trelleth-intro.html">
     <link rel="import" href="./trelleth-getboard.html">
 
   </head>
   <body>
     <div id="content">
-      <div class="mod-centered">
-      <h2>Trelleth this board</h2>
-      <hr/>
-      <poly-test name="This is polymer :)"></poly-test>
+      <trelleth-intro></trelleth-intro>
       <trelleth-getboard id="getboard" boardid=""></trelleth-getboard>
-    </div>
-      <!-- <ol>
-        <li>You should only call t.overlay() as a response to a user action, such as clicking a button.</li>
-        <li>Try to use t.popup() when possible instead of t.overlay()as it helps to better maintain context.</li>
-        <li>When using an overlay, be sure to keep the user aware they haven't left their Trello board, and make it easy and intuitive to close.</li>
-        <li>Try to get your overlay to load and render as quickly as possible.</li>
-      </ol> -->
-
     </div>
     <script src="./js/overlay.js"></script>
   </body>

@@ -1,0 +1,89 @@
+<link rel="import" href="./bower_components/polymer/polymer.html">
+<link rel="import" href="./bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="./bower_components/iron-pages/iron-pages.html">
+<link rel="stylesheet" href="./css/overlay.css">
+
+<dom-module id="trelleth-intro">
+  <template>
+  <style>
+  :host {
+    display: block;
+  }
+
+  iron-pages {
+    width: 100%;
+    text-align: center;
+    margin: 80px;
+  }
+
+  iron-pages div {
+
+  }
+  </style>
+
+  <iron-pages selected="{{selected}}" attr-for-selected="id">
+    <div id="noweb3found">
+      <div>We could not find web3. Is metamask running and unlocked?</div>
+      <button on-tap="retry" id="btn0" class="mod-primary mod-centered">Retry</button>
+    </div>
+    <div id="web3found">
+      <h1>Welcome to TrellEth!</h1>
+      <p>Your current address is {{mainaddress}}.</p>
+      <button on-tap="next" id="btn0" class="mod-primary mod-centered">Trelleth this board</button>
+      <div on-tap="fireClose">x Get me out of here</div>
+    </div>
+  </iron-pages>
+
+</template>
+
+
+<script>
+
+Polymer({
+
+  is: 'trelleth-intro',
+
+  properties: {
+    mainaddress: {
+      type: String,
+      value: 'test'
+    }
+  },
+
+  ready: function() {
+    // let's find a web3
+    console.log('Do we haz a web3?' , web3);
+    if(!web3){
+      this.selected = "noweb3found";
+    } else {
+      this.selected = "web3found";
+      this.getuserdata();
+    }
+  },
+
+  getuserdata: function() {
+    web3.eth.getAccounts(function(e, r){
+      console.log(e, r);
+      this.mainaddress = r[0];
+    }.bind(this));
+  },
+
+  retry: function() {
+    if(!web3){
+      this.selected = "noweb3found";
+    } else {
+      this.selected = "web3found";
+    }
+  },
+
+  next: function(){
+    this.selected = 1;
+  },
+
+  prev: function(){
+    this.selected = 0;
+  }
+
+});
+</script>
+</dom-module>
