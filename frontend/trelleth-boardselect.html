@@ -1,20 +1,17 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
-<link rel="import" href="./bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="./bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="./bower_components/iron-list/iron-list.html">
 <link rel="stylesheet" href="./css/overlay.css">
-<link rel="import" href="./trelleth-boardselect.html">
 
-<dom-module id="trelleth-intro">
+<dom-module id="trelleth-boardselect">
   <template>
   <style>
   :host {
     display: block;
   }
 
-  iron-pages {
+  iron-list {
     width: 100%;
-    text-align: center;
-    margin: 40px 0px 40px 0px;
+    height: 250px;
   }
 
   iron-pages div {
@@ -22,21 +19,16 @@
   }
   </style>
 
-  <iron-pages selected="{{selected}}" attr-for-selected="id">
-    <div id="noweb3found">
-      <div>We could not find web3. Is metamask running and unlocked?</div>
-      <button on-tap="retry" id="btn0" class="mod-primary mod-centered">Retry</button>
-    </div>
-    <div id="web3found">
-      <h1>Welcome to TrellEth!</h1>
-      <p>Your current address is {{mainaddress}}.</p>
-      <button on-tap="next" id="btn0" class="mod-primary mod-centered">Trelleth this board</button>
-      <div on-tap="fireClose">x Get me out of here</div>
-    </div>
-    <div id="start">
-      <trelleth-boardselect></trelleth-boardselect>
-    </div>
-  </iron-pages>
+      <h1>Trelleth this board</h1>
+      <p>This board is not trellethet yet.</p>
+      <p>Add to project:</p>
+      <iron-list items="[[listitems]]">
+        <div>[[item.name]]</div>
+      </iron-list>
+      dropdown
+      <button on-tap="next" id="btn0" class="mod-primary mod-centered">Save</button>
+      <hr />
+      <button on-tap="create" id="btn0" class="mod-primary mod-centered">Create new project</button>
 
 </template>
 
@@ -45,12 +37,22 @@
 
 Polymer({
 
-  is: 'trelleth-intro',
+  is: 'trelleth-boardselect',
 
   properties: {
     mainaddress: {
       type: String,
       value: 'test'
+    },
+    listitems: {
+      type: Array,
+      value: [
+        {"name": "Swarm City"},
+        {"name": "Giveth"},
+        {"name": "Berneth Man"},
+        {"name": "Blocktu.be"},
+        {"name": "Trelleth"}
+      ]
     }
   },
 
@@ -62,6 +64,13 @@ Polymer({
     } else {
       this.selected = "web3found";
       this.getuserdata();
+      this.listitems = [
+        {"name": "Swarm City"},
+        {"name": "Giveth"},
+        {"name": "Berneth Man"},
+        {"name": "Blocktu.be"},
+        {"name": "Trelleth"}
+      ];
     }
   },
 

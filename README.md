@@ -1,1 +1,2 @@
 trelleth
+bower install
