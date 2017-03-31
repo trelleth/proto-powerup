@@ -38,28 +38,35 @@ contract ERC20 {
   event Approval(address indexed owner, address indexed spender, uint value);
 }
 
-contract TrellethTokenController is TokenController {
+contract CardTokenController is TokenController {
 
-    MiniMeToken public ICOToken;   // The new token
+    MiniMeToken ICOToken;   // The new card token
+    MiniMeToken CardToken;   // The new card token
 
-    address public _allowedsupplier;
+    address public allowedSupplier; // the supplier that can claim the card
 
-    address supplier;
-
-    string _cardID;
+    address supplier; // the supplier that has actually claimed the card.
 
     address owner;
 
-    uint cardstatus;
+    CardStatuses public cardstatus;
 
-    function TrellethTokenController(
-        address _ICOtokenaddress,
-        address _tokenAddress          // the new MiniMe token address
+   enum CardStatuses {
+        Open,
+        Claimed,
+        Approved,
+        Rejected
+        //Finished
+    }
+
+    function CardTokenController(
+        address _ICOTokenaddress,
+        address _CardTokenaddress          // the new MiniMe token address
     ) {
-        tokenContract = MiniMeToken(_tokenAddress); // The Deployed Token Contract
-        ICOToken = new MiniMeToken(_ICOtokenaddress);
+        CardToken = MiniMeToken(_CardTokenaddress); // The Deployed Token Contract
+        ICOToken = MiniMeToken(_ICOTokenaddress);
         owner = msg.sender;
-        cardstatus = 1;
+        cardstatus = CardStatuses.Open;
     }
 
 /////////////////
@@ -74,11 +81,15 @@ contract TrellethTokenController is TokenController {
     function onTransfer(address _from, address _to, uint _amount) returns(bool) {
 
       // we're paying out ?
-      if (_to == ICOToken.address){
-        //tokenContract.destroyTokens(msg.sender,_amount);
+      if (_to == address(ICOToken)){
+        //CardToken.destroyTokens(msg.sender,_amount);
         ICOToken.generateTokens(msg.sender,_amount);
-        supplier.send(_amount);
-        cardstatus = 2;
+        if (!supplier.send(_amount)){
+          throw;
+        }
+        cardstatus = CardStatuses.Approved;
+        CardApproved(this,supplier,_amount);
+
       }
 
         return true;
@@ -95,36 +106,40 @@ contract TrellethTokenController is TokenController {
         throw;
       }
 
-      this._allowedsupplier = _supplier;
+      allowedSupplier = _supplier;
     }
 
     // sending ETH mints card-tokens
     function() payable {
 
       // when supplier is set - minting new tokens is disabled. ETH is sent back.
-      if (supplier){
+      if (supplier != 0x0){
         throw;
       }
 
-      tokenContract.generateTokens(msg.sender, msg.value);
+      CardToken.generateTokens(msg.sender, msg.value);
 
     }
 
     event CardClaimed(address cardcontroller, address supplier);
+    event CardApproved(address cardcontroller,address supplier,uint amount);
+    event CardRejected(address cardcontroller, address supplier);
 
     function claim(){
 
       // has it been claimed already ?
-      if (supplier){
+      if (supplier != 0x0){
         throw;
       }
 
       // am I the correct claimer ?
-      if (msg.sender != _allowedsupplier){
+      if (msg.sender != allowedSupplier){
         throw;
       }
 
       supplier = msg.sender;
+
+      cardstatus = CardStatuses.Claimed;
 
       CardClaimed(this,msg.sender);
 
@@ -154,8 +169,11 @@ contract TrellethTokenController is TokenController {
         throw;
       }
 
-      this.supplier = 0;
-      this._allowedsupplier = 0;
+      CardRejected(this,supplier);
+
+      supplier = 0;
+      allowedSupplier = 0;
+      cardstatus = CardStatuses.Open;
     }
 
 //    function convert(uint _amount){
@@ -167,7 +185,7 @@ contract TrellethTokenController is TokenController {
 //        }
 
         // mint new SWT tokens
-//        if (!tokenContract.generateTokens(msg.sender, _amount)) {
+//        if (!CardToken.generateTokens(msg.sender, _amount)) {
 //            throw;
 //        }
 //    }

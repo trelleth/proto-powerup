@@ -14,21 +14,28 @@ contract MiniMeToken {
 }
 
 contract ICOTokenController is TokenController {
-	
-	//mapping(string=>address) boardowners;
 
-	//string[] boards;
 
-	function mintToken(uint amount){
-		//
-	}
+    MiniMeToken public ICOTokenContract;   // The new ICO token
 
-	// function setChiefApricot(string _boardID,address _boardowner){
-	// 	if (boardowners[_boardID]){
-	// 		throw;
-	// 	}
-	// 	boardowners[_boardID] = _boardowner;
-	// 	boards.push(_boardowner);
-	// }
+    function ICOTokenController(
+        address _ICOTokenAddress          // the new MiniMe token address
+    ) {
+        ICOTokenContract = MiniMeToken(_ICOTokenAddress); // The Deployed Token Contract
+    }
+
+	 function proxyPayment(address _owner) payable returns(bool) {
+        return false;
+    }
+
+    function onTransfer(address _from, address _to, uint _amount) returns(bool) {
+        return true;
+    }
+
+    function onApprove(address _owner, address _spender, uint _amount)
+        returns(bool)
+    {
+        return true;
+    }
 
 }
