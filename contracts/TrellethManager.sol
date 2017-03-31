@@ -123,15 +123,15 @@ contract TokenController {
     function onApprove(address _owner, address _spender, uint _amount) returns(bool);
 }
 
-contract ICOTokenController is TokenController {
+contract ProjectTokenController is TokenController {
 
 
-    MiniMeToken public ICOTokenContract;   // The new ICO token
+    MiniMeToken public ProjectTokenContract;   // The new Project token
 
-    function ICOTokenController(
-        address _ICOTokenAddress          // the new MiniMe token address
+    function ProjectTokenController(
+        address _ProjectTokenAddress          // the new MiniMe token address
     ) {
-        ICOTokenContract = MiniMeToken(_ICOTokenAddress); // The Deployed Token Contract
+        ProjectTokenContract = MiniMeToken(_ProjectTokenAddress); // The Deployed Token Contract
     }
 
      function proxyPayment(address _owner) payable returns(bool) {
@@ -153,7 +153,7 @@ contract ICOTokenController is TokenController {
 
 contract CardTokenController is TokenController {
 
-    MiniMeToken ICOToken;   // The new card token
+    MiniMeToken ProjectToken;   // The new card token
     MiniMeToken CardToken;   // The new card token
 
     address public allowedSupplier; // the supplier that can claim the card
@@ -173,15 +173,15 @@ contract CardTokenController is TokenController {
     }
 
     function CardTokenController(
-        address _ICOTokenaddress,
+        address _ProjectTokenaddress,
         address _CardTokenaddress          // the new MiniMe token address
     ) {
         CardToken = MiniMeToken(_CardTokenaddress); // The Deployed Token Contract
-        ICOToken = MiniMeToken(_ICOTokenaddress);
+        ProjectToken = MiniMeToken(_ProjectTokenaddress);
         owner = msg.sender;
         cardstatus = CardStatuses.Open;
     }
-    
+
     function proxyPayment(address _owner) payable returns(bool) {
         return false;
     }
@@ -205,16 +205,16 @@ contract TrellethManager {
 
     struct board {
         address boardowner;
-        address icotoken;
+        address Projecttoken;
     }
 
-    mapping(string=>board) public icos;     // Trello Board ID -> board struct
+    mapping(string=>board) public Projects;     // Trello Board ID -> board struct
 
-    mapping(address=>mapping(address=>uint)) public myicos; // my pubkey to ICOs
+    mapping(address=>mapping(address=>uint)) public myProjects; // my pubkey to Projects
 
-    mapping(string=>address) public cardtoicos; // maps a cardID to it's token address
+    mapping(string=>address) public cardtoProjects; // maps a cardID to it's token address
 
-    event NewIco(address sender, address newToken);
+    event NewProject(address sender, address newToken);
     event TrellEthed(string cardID, address TrellethCardToken);
 
     address tokenFactory;
@@ -224,13 +224,13 @@ contract TrellethManager {
 
 	}
 
-     mapping(string=>address) public boardToICO;   // mapping from board ID to ICO address
+     mapping(string=>address) public boardToProject;   // mapping from board ID to Project address
 
-     // manage a new ICO
-     function makeICO(string _tokenshortcode, string _tokenname){
+     // manage a new Project
+     function makeProject(string _tokenshortcode, string _tokenname){
 
-        // deploy ICO token
-        MiniMeToken newICOToken = new MiniMeToken(
+        // deploy Project token
+        MiniMeToken newProjectToken = new MiniMeToken(
             tokenFactory,
             0,
             0,
@@ -240,40 +240,40 @@ contract TrellethManager {
             true
             );
 
-        ICOTokenController tk = new ICOTokenController(newICOToken);
+        ProjectTokenController tk = new ProjectTokenController(newProjectToken);
 
-        newICOToken.changeController(tk);
+        newProjectToken.changeController(tk);
 
-        // add this ICO Token to this user's list of ICO tokens
-        myicos[msg.sender][address(newICOToken)]=1;        
+        // add this Project Token to this user's list of Project tokens
+        myProjects[msg.sender][address(newProjectToken)]=1;        
 
         // notify user
-        NewIco(msg.sender,address(newICOToken));  
+        NewProject(msg.sender,address(newProjectToken));  
      }
 
-     // attach a board to the ICO token
-     function attachBoard(address _ICOtoken, string _boardID){
+     // attach a board to the Project token
+     function attachBoard(address _Projecttoken, string _boardID){
         
-        // If this ICO Token is not mine, I cannot add a board to it.
-        if (myicos[msg.sender][address(_ICOtoken)] != 1){
+        // If this Project Token is not mine, I cannot add a board to it.
+        if (myProjects[msg.sender][address(_Projecttoken)] != 1){
             throw;
         }
 
-        boardToICO[_boardID] = address(_ICOtoken);
+        boardToProject[_boardID] = address(_Projecttoken);
 
      }
 
      // TrellEth a card
 	 function trellethIt(string _trelloCardId,string _trelloBoardID) {
 
-        // is this board attached to an ICO ?
-        if (boardToICO[_trelloBoardID] == 0x0){
+        // is this board attached to an Project ?
+        if (boardToProject[_trelloBoardID] == 0x0){
             throw;
         }
 
-        // is the message sender the owner of this ICO ? 
-        // otherwise everybody can attach cards to any ICO - and thatwilleweniet
-        if (myicos[msg.sender][boardToICO[_trelloBoardID]] != 1){
+        // is the message sender the owner of this Project ? 
+        // otherwise everybody can attach cards to any Project - and thatwilleweniet
+        if (myProjects[msg.sender][boardToProject[_trelloBoardID]] != 1){
             throw;
         }
 
@@ -287,11 +287,11 @@ contract TrellethManager {
             true
             );
 
-        CardTokenController tcc = new CardTokenController(boardToICO[_trelloBoardID],newToken);
+        CardTokenController tcc = new CardTokenController(boardToProject[_trelloBoardID],newToken);
 
         newToken.changeController(tcc);
 
-        cardtoicos[_trelloCardId] = address(newToken);
+        cardtoProjects[_trelloCardId] = address(newToken);
 
         // notify UI sothat you know that a new token has been deployed for this card
         TrellEthed(_trelloCardId,newToken);

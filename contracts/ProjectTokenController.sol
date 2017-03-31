@@ -13,15 +13,15 @@ contract MiniMeToken {
     ) returns (bool);
 }
 
-contract ICOTokenController is TokenController {
+contract ProjectTokenController is TokenController {
 
 
-    MiniMeToken public ICOTokenContract;   // The new ICO token
+    MiniMeToken public ProjectTokenContract;   // The new Project token
 
-    function ICOTokenController(
-        address _ICOTokenAddress          // the new MiniMe token address
+    function ProjectTokenController(
+        address _ProjectTokenAddress          // the new MiniMe token address
     ) {
-        ICOTokenContract = MiniMeToken(_ICOTokenAddress); // The Deployed Token Contract
+        ProjectTokenContract = MiniMeToken(_ProjectTokenAddress); // The Deployed Token Contract
     }
 
 	 function proxyPayment(address _owner) payable returns(bool) {

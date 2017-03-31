@@ -18,9 +18,9 @@ contract MiniMeToken {
 }
 
 
-contract ICOTokenController is TokenController {
+contract ProjectTokenController is TokenController {
   function mintToken(uint amount);
-  function setChiefApricot(string _boardID,address _boardowner);
+  function setChiefAprProjectt(string _boardID,address _boardowner);
 }
 
 
@@ -40,7 +40,7 @@ contract ERC20 {
 
 contract CardTokenController is TokenController {
 
-    MiniMeToken ICOToken;   // The new card token
+    MiniMeToken ProjectToken;   // The new card token
     MiniMeToken CardToken;   // The new card token
 
     address public allowedSupplier; // the supplier that can claim the card
@@ -60,11 +60,11 @@ contract CardTokenController is TokenController {
     }
 
     function CardTokenController(
-        address _ICOTokenaddress,
+        address _ProjectTokenaddress,
         address _CardTokenaddress          // the new MiniMe token address
     ) {
         CardToken = MiniMeToken(_CardTokenaddress); // The Deployed Token Contract
-        ICOToken = MiniMeToken(_ICOTokenaddress);
+        ProjectToken = MiniMeToken(_ProjectTokenaddress);
         owner = msg.sender;
         cardstatus = CardStatuses.Open;
     }
@@ -81,9 +81,9 @@ contract CardTokenController is TokenController {
     function onTransfer(address _from, address _to, uint _amount) returns(bool) {
 
       // we're paying out ?
-      if (_to == address(ICOToken)){
+      if (_to == address(ProjectToken)){
         //CardToken.destroyTokens(msg.sender,_amount);
-        ICOToken.generateTokens(msg.sender,_amount);
+        ProjectToken.generateTokens(msg.sender,_amount);
         if (!supplier.send(_amount)){
           throw;
         }
@@ -153,8 +153,8 @@ contract CardTokenController is TokenController {
 
     //   supplier.send(this.value);
 
-    //   // generate ICO tokens for the funder ( == the owner for now )
-    //   ICOToken.generateTokens(owner, this.value);
+    //   // generate Project tokens for the funder ( == the owner for now )
+    //   ProjectToken.generateTokens(owner, this.value);
 
     // }
 
