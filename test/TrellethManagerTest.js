@@ -1,12 +1,14 @@
 var MiniMeTokenFactory = artifacts.require("./MiniMeToken.sol");
 var MiniMeToken = artifacts.require("./MiniMeToken.sol");
-var TrellethTokenController = artifacts.require("./MiniMeToken.sol");
+//var TrellethTokenController = artifacts.require("./MiniMeToken.sol");
+var TrellethManager = artifacts.require("./TrellethManager.sol");
 
 contract('TrellethTokenController', function(accounts) {
 
   var deposit_address = accounts[1];
 
   var miniMeTokenFactory;
+  var TrellethManagerInstance;
   var self = this;
 
   describe('Deploy MiniMeToken TokenFactory', function() {
@@ -14,50 +16,68 @@ contract('TrellethTokenController', function(accounts) {
       MiniMeTokenFactory.new().then(function(_miniMeTokenFactory) {
         assert.ok(_miniMeTokenFactory.address);
         miniMeTokenFactory = _miniMeTokenFactory;
-        console.log('miniMeTokenFactory created at address', _miniMeTokenFactory.address);
+//        console.log(_miniMeTokenFactory);
+        console.log('miniMeTokenFactory created at address', _miniMeTokenFactory.address,'gas used',_miniMeTokenFactory.gasUsed);
         done();
       });
     });
   });
 
-  describe('Deploy MiniMeToken Token & TrellethTokenController', function() {
-
-    var hashtagToken;
-
+  describe('Deploy TrellethManager', function() {
     it("should deploy MiniMeToken contract", function(done) {
-      MiniMeToken.new(
-        miniMeTokenFactory.address,
-        0,
-        0,
-        "Card1Token",
-        18,
-        "TT",
-        true
-      ).then(function(_miniMeToken) {
-        assert.ok(_miniMeToken.address);
-        console.log('Hashtag token created at address', _miniMeToken.address);
-        hashtagToken = _miniMeToken;
+      TrellethManager.new(miniMeTokenFactory).then(function(_TrellethManagerInstance) {
+        assert.ok(_TrellethManagerInstance.address);
+        TrellethManagerInstance = _TrellethManagerInstance;
+        console.log('TrellethManagerInstance created at address', _TrellethManagerInstance.address);
         done();
       });
     });
-
-    it("should deploy Controller", function(done) {
-      TrellethTokenController.new(deposit_address, hashtagToken.address, arcToken.address).then(function(instance) {
-        swtConverter = instance;
-        assert.isNotNull(swtConverter);
+    it("should create a new project token", function(done) {
+      TrellethManagerInstance.makeProject("PTK","My Project Token").then(function(_res) {
+        //assert.ok(_res.address);
+        //console.log('project token created', _res);
         done();
       });
-    });
-
-    it("should set token's controller to TrellethTokenController", function(done) {
-      hashtagToken.changeController(swtConverter.address).then(function() {
-        done();
-      }).catch(function(e) {
-        assert.fail(null, null, 'this function should not throw', e);
-        done();
-      });
-    });
+    });    
   });
+  // describe('Deploy MiniMeToken Token & TrellethTokenController', function() {
+
+  //   var hashtagToken;
+
+  //   it("should deploy MiniMeToken contract", function(done) {
+  //     MiniMeToken.new(
+  //       miniMeTokenFactory.address,
+  //       0,
+  //       0,
+  //       "Card1Token",
+  //       18,
+  //       "TT",
+  //       true
+  //     ).then(function(_miniMeToken) {
+  //       assert.ok(_miniMeToken.address);
+  //       console.log('Hashtag token created at address', _miniMeToken.address);
+  //       hashtagToken = _miniMeToken;
+  //       done();
+  //     });
+  //   });
+
+  //   it("should deploy Controller", function(done) {
+  //     TrellethTokenController.new(deposit_address, hashtagToken.address, arcToken.address).then(function(instance) {
+  //       swtConverter = instance;
+  //       assert.isNotNull(swtConverter);
+  //       done();
+  //     });
+  //   });
+
+  //   it("should set token's controller to TrellethTokenController", function(done) {
+  //     hashtagToken.changeController(swtConverter.address).then(function() {
+  //       done();
+  //     }).catch(function(e) {
+  //       assert.fail(null, null, 'this function should not throw', e);
+  //       done();
+  //     });
+  //   });
+  // });
 
   // describe('Convert ARC to SWT fails without having an allowance', function() {
 
