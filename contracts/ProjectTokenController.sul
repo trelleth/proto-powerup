@@ -1,6 +1,14 @@
 pragma solidity ^0.4.8;
 
-import "./MiniMeToken.sol";
+// TokenController interface
+contract TokenController {
+    function proxyPayment(address _owner) payable returns(bool);
+    function onTransfer(address _from, address _to, uint _amount) returns(bool);
+    function onApprove(address _owner, address _spender, uint _amount) returns(bool);
+}
+
+contract MiniMeToken {
+}
 
 contract ProjectTokenController is TokenController {
 
