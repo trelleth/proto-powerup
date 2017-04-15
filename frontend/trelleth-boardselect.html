@@ -19,12 +19,12 @@
   }
   </style>
 
-      <h1>Trelleth this board</h1>
+      <h1>Trelleth this board 1.1</h1>
       <p>This board is not trellethet yet.</p>
       <p>Add to project:</p>
-      <iron-list items="[[listitems]]">
-        <div>[[item.name]]</div>
-      </iron-list>
+      <template is="dom-repeat" items="{{listitems}}">
+        <div>{{item.name}}</div>
+      </template>
       dropdown
       <button on-tap="next" id="btn0" class="mod-primary mod-centered">Save</button>
       <hr />
@@ -47,7 +47,7 @@ Polymer({
     listitems: {
       type: Array,
       value: [
-        {"name": "Swarm City"},
+        {"name": "Swarm City Comms"},
         {"name": "Giveth"},
         {"name": "Berneth Man"},
         {"name": "Blocktu.be"},
@@ -65,7 +65,7 @@ Polymer({
       this.selected = "web3found";
       this.getuserdata();
       this.listitems = [
-        {"name": "Swarm City"},
+        {"name": "Swarm City Comms"},
         {"name": "Giveth"},
         {"name": "Berneth Man"},
         {"name": "Blocktu.be"},
@@ -95,6 +95,10 @@ Polymer({
 
   prev: function(){
     this.selected = 0;
+  },
+
+  create: function(){
+    this.fire('create');
   }
 
 });

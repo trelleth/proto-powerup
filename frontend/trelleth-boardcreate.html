@@ -1,0 +1,98 @@
+<link rel="import" href="./bower_components/polymer/polymer.html">
+<link rel="import" href="./bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="./bower_components/paper-progress/paper-progress.html">
+
+<dom-module id="trelleth-boardcreate">
+  <template>
+  <style>
+  :host {
+    display: block;
+  }
+
+  iron-pages {
+    width: 100%;
+    text-align: center;
+    margin: 40px 0px 40px 0px;
+  }
+
+  iron-pages div {
+
+  }
+  paper-progress.blue {
+    --paper-progress-active-color: var(--paper-light-blue-500);
+    --paper-progress-secondary-color: var(--paper-light-blue-100);
+  }
+  paper-progress {
+    display: block;
+    width: 100%;
+    margin: 20px 0;
+  }
+  </style>
+
+  <iron-pages selected="{{selected}}" attr-for-selected="id">
+    <div id="start">
+      <div>
+        <h2>Well herro sir! Creating a new project are you?</h2>
+        <p>Well let me get you some nice text here then. It's always fun to read something, no?</p>
+      </div>
+      <button on-tap="tosetup" id="btn0" class="mod-primary mod-centered">Yes.</button>
+    </div>
+    <div id="setup">
+      <div>
+        <h2>Fill in this oldskool form</h2>
+        <input type="text" placeho  lder="Name of your project" />
+        <input type="text" placeholder="Token Shortname" />
+      </div>
+      <button on-tap="toprogress" id="btn0" class="mod-primary mod-centered">Go on bruh</button>
+    </div>
+    <div id="progress">
+      <div>
+        <h2>Wait for it...</h2>
+        <paper-progress indeterminate class="blue"></paper-progress>
+      </div>
+
+    </div>
+  </iron-pages>
+
+</template>
+
+
+<script>
+
+Polymer({
+
+  is: 'trelleth-boardcreate',
+
+  properties: {
+    mainaddress: {
+      type: String,
+      value: 'test'
+    }
+  },
+
+  ready: function() {
+    // let's find a web3
+    this.selected = "start";
+  },
+
+  tosetup: function(){
+    this.selected = "setup";
+  },
+
+  toprogress: function() {
+    this.selected = "progress";
+    console.log(web3);
+  },
+
+  createproject: function(fn) {
+    web3.eth.getAccounts(function(e, r){
+      console.log(e, r);
+      this.mainaddress = r[0];
+
+    }.bind(this));
+    fn();
+  },
+
+});
+</script>
+</dom-module>
