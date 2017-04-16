@@ -3,6 +3,7 @@
 <link rel="import" href="./bower_components/iron-pages/iron-pages.html">
 <link rel="stylesheet" href="./css/overlay.css">
 <link rel="import" href="./trelleth-boardselect.html">
+<link rel="import" href="./trelleth-boardcreate.html">
 
 <dom-module id="trelleth-intro">
   <template>
@@ -34,7 +35,10 @@
       <div on-tap="fireClose">x Get me out of here</div>
     </div>
     <div id="start">
-      <trelleth-boardselect></trelleth-boardselect>
+      <trelleth-boardselect on-create="gotocreate"></trelleth-boardselect>
+    </div>
+    <div id="create">
+      <trelleth-boardcreate></trelleth-boardcreate>
     </div>
   </iron-pages>
 
@@ -63,6 +67,10 @@ Polymer({
       this.selected = "web3found";
       this.getuserdata();
     }
+  },
+
+  gotocreate: function(){
+    this.selected = "create";
   },
 
   getuserdata: function() {
