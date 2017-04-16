@@ -1,64 +1,44 @@
 pragma solidity ^0.4.8;
-
+import "./MiniMeToken.sol";
 //import "./MiniMeToken.sol";
 //import "./ProjectTokenController.sol";
 //import "./CardTokenController.sol";
-contract MiniMeTokenFactory {
-}
+// contract MiniMeTokenFactory {
+//         function createCloneToken(
+//         address _parentToken,
+//         uint _snapshotBlock,
+//         string _tokenName,
+//         uint8 _decimalUnits,
+//         string _tokenSymbol,
+//         bool _transfersEnabled
+//     ) returns (address);
+// }
 
-contract Controlled {
-    /// @notice The address of the controller is the only address that can call
-    ///  a function with this modifier
-    modifier onlyController { if (msg.sender != controller) throw; _; }
+// contract Controlled {
+//     /// @notice The address of the controller is the only address that can call
+//     ///  a function with this modifier
+//     modifier onlyController { if (msg.sender != controller) throw; _; }
 
-    address public controller;
+//     address public controller;
 
-    function Controlled() { controller = msg.sender;}
+//     function Controlled() { controller = msg.sender;}
 
-    /// @notice Changes the controller of the contract
-    /// @param _newController The new controller of the contract
-    function changeController(address _newController) onlyController {
-        controller = _newController;
-    }
-}
+//     /// @notice Changes the controller of the contract
+//     /// @param _newController The new controller of the contract
+//     function changeController(address _newController) onlyController {
+//         controller = _newController;
+//     }
+// }
 
-contract MiniMeToken is Controlled {
+// contract MiniMeToken {
+//     function changeController(address _newController);
+// }
 
-    MiniMeTokenFactory public tokenFactory;
-    string public name;                //The Token's name: e.g. DigixDAO Tokens
-    uint8 public decimals;             //Number of decimals of the smallest unit
-    string public symbol;              //An identifier: e.g. REP
-    MiniMeToken public parentToken;
-    uint public parentSnapShotBlock;
-    uint public creationBlock;
-    bool public transfersEnabled;
-
-    
-    //function generateTokens(address _owner, uint _amount) returns (bool);    
-    function MiniMeToken(
-        address _tokenFactory,
-        address _parentToken,
-        uint _parentSnapShotBlock,
-        string _tokenName,
-        uint8 _decimalUnits,
-        string _tokenSymbol,
-        bool _transfersEnabled
-    ) {
-        tokenFactory = MiniMeTokenFactory(_tokenFactory);
-        name = _tokenName;                                 // Set the name
-        decimals = _decimalUnits;                          // Set the decimals
-        symbol = _tokenSymbol;                             // Set the symbol
-        parentToken = MiniMeToken(_parentToken);
-        parentSnapShotBlock = _parentSnapShotBlock;
-        transfersEnabled = _transfersEnabled;
-        creationBlock = block.number;
-    }
-}
-contract TokenController {
-    function proxyPayment(address _owner) payable returns(bool);
-    function onTransfer(address _from, address _to, uint _amount) returns(bool);
-    function onApprove(address _owner, address _spender, uint _amount) returns(bool);
-}
+// contract TokenController {
+//     function proxyPayment(address _owner) payable returns(bool);
+//     function onTransfer(address _from, address _to, uint _amount) returns(bool);
+//     function onApprove(address _owner, address _spender, uint _amount) returns(bool);
+// }
 
 contract ProjectTokenController is TokenController {
 
@@ -229,8 +209,8 @@ contract CardTokenController is TokenController {
 
 }
 
-
 contract TrellethManager {
+
 
     struct board {
         address boardowner;
@@ -250,10 +230,12 @@ contract TrellethManager {
     event NewProject(address sender, address projectToken,address projectTokenController);
     event TrellEthed(string cardID, address cardToken, address cardTokenController);
 
-    address tokenFactory;
+    MiniMeTokenFactory tokenFactory;
+  
 
 	function TrellethManager(address _tokenFactory){
-        tokenFactory = _tokenFactory;
+        tokenFactory = MiniMeTokenFactory(_tokenFactory);
+       
 	}
 
     function getBoardAddress(string _boardID) returns (address){
@@ -264,7 +246,6 @@ contract TrellethManager {
      // manage a new Project
      function makeProject(string _tokenname,string _tokenshortcode){
 
-        // deploy Project token
         MiniMeToken newProjectToken = new MiniMeToken(
             tokenFactory,
             0,
@@ -276,7 +257,6 @@ contract TrellethManager {
             );
 
         ProjectTokenController tk = new ProjectTokenController(address(newProjectToken));
-
         newProjectToken.changeController(address(tk));
 
         // add this Project Token to this user's list of Project tokens
@@ -284,11 +264,11 @@ contract TrellethManager {
         myProjectsCounts[msg.sender]++;
 
         // track the owner of a project token
-        projectOwner[address(newProjectToken)] = msg.sender;
+        projectOwner[newProjectToken] = msg.sender;
 
 //         // notify user
-//        NewProject(msg.sender,address(newProjectToken),address(tk));  
-         NewProject(msg.sender,address(newProjectToken),address(tk));  
+        NewProject(msg.sender,address(newProjectToken),address(tk));  
+//         NewProject(msg.sender,address(newProjectToken),address(0));  
      }
 
      // attach a board to the Project token
@@ -320,22 +300,21 @@ contract TrellethManager {
         if (myProjects[msg.sender][boardToProject[_trelloBoardID]] != 1){
             throw;
         }
-
-   		MiniMeToken cardToken = new MiniMeToken(
-            tokenFactory,
-            0,
-            0,
-            _trelloCardId,
-            0,
-            'TTOK',
-            true
-            );
-
+MiniMeToken cardToken;
+        //  cardToken = new MiniMeToken(
+        //     tokenFactory,
+        //     0,
+        //     0,
+        //     _trelloCardId,
+        //     0,
+        //     "TCTOK",
+        //     true
+        //     );
      //    //TODO : uncomment me
          CardTokenController tcc = new CardTokenController(boardToProject[_trelloBoardID],cardToken,msg.sender);
-         cardToken.changeController(tcc);
+         //cardToken.changeController(tcc);
 
-         cardtoProjects[_trelloCardId] = address(cardToken);
+         cardtoProjects[_trelloCardId] = cardToken;
 
          // notify UI sothat you know that a new token has been deployed for this card
          TrellEthed(_trelloCardId,cardToken,tcc);

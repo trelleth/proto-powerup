@@ -84,12 +84,19 @@ contract('TrellethTokenController', function(accounts) {
         }
       });
 
-      TrellethManagerInstance.makeProject("board1token", "b1t").then(function(_res) {}).catch(function(e) {
+      var g = TrellethManagerInstance.makeProject.estimateGas("board1token", "b1t").then(function(r){
+        console.log('Estimated GAS=',r);
+      });
+
+      TrellethManagerInstance.makeProject("board1token", "b1t", {
+        gas: 2000000
+      }).then(function(_res) {}).catch(function(e) {
         console.log(e);
         assert.fail(null, null, 'this function should not throw', e);
-
-      });;
-
+      }).catch(function(e) {
+        assert.fail(null, null, 'grrr', e);
+        done();
+      });;;
 
     });
 
@@ -119,9 +126,21 @@ contract('TrellethTokenController', function(accounts) {
     it("account[0] should be able to attach a board to his project token", function(done) {
       assert.ok(projectToken);
       TrellethManagerInstance.attachBoard(self.web3.toHex(projectToken), "board1").then(function(_res) {
-        //assert.notEqual(_res.valueOf(), self.web3.toHex(accounts[1]));
         done();
-      });
+      }).catch(function(e) {
+        assert.fail(null, null, 'this function should not throw', e);
+        done();
+      });;
+    });
+
+    it("account[1] should not be able to attach a board to account[0]'s project token", function(done) {
+      assert.ok(projectToken);
+      TrellethManagerInstance.attachBoard(self.web3.toHex(projectToken), "board2",{from:account[1]}).then(function(_res) {
+        assert.fail(null, null, 'this function should throw', e);
+        done();
+      }).catch(function(e) {
+        done();
+      });;
     });
 
     it("board should point to my project token", function(done) {
