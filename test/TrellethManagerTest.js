@@ -2,63 +2,142 @@ var MiniMeTokenFactory = artifacts.require("./MiniMeToken.sol");
 var MiniMeToken = artifacts.require("./MiniMeToken.sol");
 //var TrellethTokenController = artifacts.require("./MiniMeToken.sol");
 var TrellethManager = artifacts.require("./TrellethManager.sol");
-var CardTokenController = artifacts.require("CardTokenController");
+//var TrellethFactory = artifacts.require("./TrellethFactory.sol");
+var CardTokenController = artifacts.require("./CardTokenController.sol");
+var CardTokenControllerFactory = artifacts.require("./CardTokenController.sol");
+var ProjectTokenController = artifacts.require("./ProjectTokenController.sol");
+var ProjectTokenControllerFactory = artifacts.require("./ProjectTokenController.sol");
 
 contract('TrellethTokenController', function(accounts) {
 
   var deposit_address = accounts[1];
 
   var miniMeTokenFactory;
-  var miniMeToken;
+  var projectTokenControllerFactory;
+  var cardTokenControllerFactory;
+
   var TrellethManagerInstance;
   var projectToken;
   var projectTokenController;
   var cardToken;
   var cardTokenController;
 
+
   var self = this;
 
-  describe('Deploy MiniMeToken TokenFactory', function() {
-    it("should deploy MiniMeToken contract", function(done) {
+  describe('Deploy Factories', function() {
+
+    it("should deploy MiniMeTokenFactory contract", function(done) {
       MiniMeTokenFactory.new({
         gas: 4700000
-      }).then(function(_miniMeTokenFactory) {
-        assert.ok(_miniMeTokenFactory.address);
-        miniMeTokenFactory = _miniMeTokenFactory;
-        console.log('miniMeTokenFactory created at address', _miniMeTokenFactory.address);
-        done();
+      }).then(function(_instance) {
+        assert.ok(_instance.address);
+        miniMeTokenFactory = _instance;
+        console.log('MiniMeTokenFactory created at address', _instance.address);
+        self.web3.eth.getTransactionReceipt(_instance.transactionHash, function(err, receipt) {
+          console.log('gas used =', receipt.gasUsed);
+          done();
+        });
+        //done();
       });
     });
+
+    it("should deploy ProjectTokenControllerFactory contract", function(done) {
+      ProjectTokenControllerFactory.new(miniMeTokenFactory.address, {
+        gas: 4700000
+      }).then(function(_instance) {
+        assert.ok(_instance.address);
+        projectTokenControllerFactory = _instance;
+        console.log('ProjectTokenControllerFactory created at address', _instance.address);
+        self.web3.eth.getTransactionReceipt(_instance.transactionHash, function(err, receipt) {
+          console.log('gas used =', receipt.gasUsed);
+          done();
+        });
+        //done();
+      });
+    });
+
+    it("should deploy CardTokenControllerFactory contract", function(done) {
+      CardTokenControllerFactory.new(miniMeTokenFactory.address, {
+        gas: 4700000
+      }).then(function(_instance) {
+        assert.ok(_instance.address);
+        cardTokenControllerFactory = _instance;
+        console.log('CardTokenControllerFactory created at address', _instance.address);
+        self.web3.eth.getTransactionReceipt(_instance.transactionHash, function(err, receipt) {
+          console.log('gas used =', receipt.gasUsed);
+          done();
+        });
+        //done();
+      });
+    });
+
   });
 
-  // describe('Deploy MiniMeToken', function() {
-  //   it("should deploy MiniMeToken contract", function(done) {
-  //     MiniMeToken.new(
-  //           miniMeTokenFactory.address,
-  //           0,
-  //           0,
-  //           "My Token",
-  //           0,
-  //           "MYTOK",
-  //           true
-  //       ).then(function(_miniMeToken) {
-  //       assert.ok(_miniMeToken.address);
-  //       miniMeToken = _miniMeToken;
-  //       console.log('miniMeToken created at address', _miniMeToken.address);
-  //       done();
-  //     });
-  //   });
-  // });
-
   describe('Deploy TrellethManager', function() {
-    it("should deploy MiniMeToken contract", function(done) {
-      TrellethManager.new(miniMeTokenFactory.address).then(function(_TrellethManagerInstance) {
+    it("should deploy TrellethManager", function(done) {
+
+      TrellethManager.new({
+        gas: 4700000
+      }).then(function(_TrellethManagerInstance) {
         assert.ok(_TrellethManagerInstance.address);
         TrellethManagerInstance = _TrellethManagerInstance;
         console.log('TrellethManagerInstance created at address', _TrellethManagerInstance.address);
-        done();
+        self.web3.eth.getTransactionReceipt(_TrellethManagerInstance.transactionHash, function(err, receipt) {
+          console.log('gas used =', receipt.gasUsed);
+          done();
+        });
       });
+
     });
+
+    it("should call setFactories on TrellethManager", function(done) {
+
+      TrellethManagerInstance.setFactories(projectTokenControllerFactory.address, cardTokenControllerFactory.address, {
+        gas: 4700000
+      }).then(function(_res) {
+        //console.log(_res,a);
+        //assert.ok(_TrellethManagerInstance.address);
+        //TrellethManagerInstance = _TrellethManagerInstance;
+        //console.log('TrellethManagerInstance created at address', _TrellethManagerInstance.address);
+        self.web3.eth.getTransactionReceipt(_res.receipt.transactionHash, function(err, receipt) {
+          console.log('gas used =', receipt.gasUsed);
+          done();
+        });
+//        done();
+      });
+
+    });
+
+
+
+    // it("should deploy projectToken contract", function(done) {
+    //   MiniMeToken.new(
+    //         miniMeTokenFactory.address,
+    //         0,
+    //         0,
+    //         "My project Token",
+    //         0,
+    //         "MYPTOK",
+    //         true
+    //     ).then(function(_miniMeToken) {
+    //     assert.ok(_miniMeToken.address);
+    //     projectToken = _miniMeToken;
+    //     console.log('projectToken created at address', _miniMeToken.address);
+    //     done();
+    //   });
+    // });
+
+    // it("should deploy projectTokenController contract", function(done) {
+    //    ProjectTokenController.new("My Project Token"
+    //          //projectToken.address
+    //      ).then(function(_projectTokenController) {
+    //      assert.ok(_projectTokenController.address);
+    //      projectTokenController = _projectTokenController;
+    //      console.log('projectTokenController created at address', _projectTokenController.address);
+    //      done();
+    //    });
+    //  });
 
     it("account[0] should have no project token", function(done) {
       TrellethManagerInstance.myProjectsCounts(accounts[0]).then(function(_res) {
@@ -78,138 +157,161 @@ contract('TrellethTokenController', function(accounts) {
           projectToken = result.args.projectToken;
           projectTokenController = result.args.projectTokenController;
           console.log('new project token deployed at', projectToken);
-          console.log('new project token controller at', projectTokenController);
+          //console.log('new project token controller at', projectTokenController);
           listener.stopWatching();
           done();
         }
       });
 
-      var g = TrellethManagerInstance.makeProject.estimateGas("board1token", "b1t").then(function(r){
-        console.log('Estimated GAS=',r);
-      });
+      // var g = TrellethManagerInstance.makeProject.estimateGas("board1token", "b1t",projectTokenController.address).then(function(r){
+      //   console.log('Estimated GAS=',r);
+      // });
 
-      TrellethManagerInstance.makeProject("board1token", "b1t", {
-        gas: 2000000
-      }).then(function(_res) {}).catch(function(e) {
+      TrellethManagerInstance.makeProject(0, {
+        gas: 4700000
+      }).then(function(_res) {
+        self.web3.eth.getTransactionReceipt(_res.receipt.transactionHash, function(err, receipt) {
+          console.log('gas used =', receipt.gasUsed);
+          done();
+        });        
+      }).catch(function(e) {
         console.log(e);
         assert.fail(null, null, 'this function should not throw', e);
-      }).catch(function(e) {
-        assert.fail(null, null, 'grrr', e);
-        done();
-      });;;
-
-    });
-
-    it("account[0] should have a new project / token", function(done) {
-      TrellethManagerInstance.myProjectsCounts(accounts[0]).then(function(_res) {
-        assert.equal(_res.valueOf(), 1);
-        done();
-      });
-    });
-
-    it("account[0] should own the project token", function(done) {
-      assert.ok(projectToken);
-      TrellethManagerInstance.projectOwner(self.web3.toHex(projectToken)).then(function(_res) {
-        assert.equal(_res.valueOf(), self.web3.toHex(accounts[0]));
-        done();
-      });
-    });
-
-    it("account[1] should not own the project token", function(done) {
-      assert.ok(projectToken);
-      TrellethManagerInstance.projectOwner(self.web3.toHex(projectToken)).then(function(_res) {
-        assert.notEqual(_res.valueOf(), self.web3.toHex(accounts[1]));
-        done();
-      });
-    });
-
-    it("account[0] should be able to attach a board to his project token", function(done) {
-      assert.ok(projectToken);
-      TrellethManagerInstance.attachBoard(self.web3.toHex(projectToken), "board1").then(function(_res) {
-        done();
-      }).catch(function(e) {
-        assert.fail(null, null, 'this function should not throw', e);
-        done();
-      });;
-    });
-
-    it("account[1] should not be able to attach a board to account[0]'s project token", function(done) {
-      assert.ok(projectToken);
-      TrellethManagerInstance.attachBoard(self.web3.toHex(projectToken), "board2",{from:account[1]}).then(function(_res) {
-        assert.fail(null, null, 'this function should throw', e);
         done();
       }).catch(function(e) {
         done();
-      });;
+      });
+
     });
 
-    it("board should point to my project token", function(done) {
-      TrellethManagerInstance.getBoardAddress.call("board1").then(function(_res) {
-        assert.equal(_res.valueOf(), self.web3.toHex(projectToken));
-        done();
-      });
-    });
+    // it("account[0] should have a new project / token", function(done) {
+    //   TrellethManagerInstance.myProjectsCounts(accounts[0]).then(function(_res) {
+    //     assert.equal(_res.valueOf(), 1);
+    //     done();
+    //   });
+    // });
+
+    // it("account[0] should own the project token", function(done) {
+    //   assert.ok(projectToken);
+    //   TrellethManagerInstance.projectOwner(self.web3.toHex(projectToken)).then(function(_res) {
+    //     assert.equal(_res.valueOf(), self.web3.toHex(accounts[0]));
+    //     done();
+    //   });
+    // });
+
+    // it("account[1] should not own the project token", function(done) {
+    //   assert.ok(projectToken);
+    //   TrellethManagerInstance.projectOwner(self.web3.toHex(projectToken)).then(function(_res) {
+    //     assert.notEqual(_res.valueOf(), self.web3.toHex(accounts[1]));
+    //     done();
+    //   });
+    // });
+
+    // it("account[0] should be able to attach a board to his project token", function(done) {
+    //   assert.ok(projectToken);
+    //   TrellethManagerInstance.attachBoard(self.web3.toHex(projectToken), "board1").then(function(_res) {
+    //     done();
+    //   }).catch(function(e) {
+    //     assert.fail(null, null, 'this function should not throw', e);
+    //     done();
+    //   });;
+    // });
+
+    // it("account[1] should not be able to attach a board to account[0]'s project token", function(done) {
+    //   assert.ok(projectToken);
+    //   TrellethManagerInstance.attachBoard(self.web3.toHex(projectToken), "board2", {
+    //     from: accounts[1]
+    //   }).then(function(_res) {
+    //     assert.fail(null, null, 'this function should throw', e);
+    //     done();
+    //   }).catch(function(e) {
+    //     done();
+    //   });;
+    // });
+
+    // it("board should point to my project token", function(done) {
+    //   TrellethManagerInstance.getBoardAddress.call("board1").then(function(_res) {
+    //     assert.equal(_res.valueOf(), self.web3.toHex(projectToken));
+    //     done();
+    //   });
+    // });
 
   });
 
-  describe('Trelleth cards', function() {
-    it("board should TrellETH a Card", function(done) {
+  // describe('Trelleth cards', function() {
 
-      var events = TrellethManagerInstance.TrellEthed({
-        fromBlock: "latest"
-      });
-      var listener = events.watch(function(error, result) {
-        // This will catch all events, regardless of how they originated.
-        if (error == null && result.args) {
-          console.log(result.args);
-          cardToken = result.args.cardToken;
-          cardTokenController = CardTokenController.at(result.args.cardTokenController);
-          listener.stopWatching();
-          done();
-        }
-      });
+  //   // it("should deploy projectTokenController contract", function(done) {
+  //   //      CardTokenController.new("My Project Token"
+  //   //            //projectToken.address
+  //   //        ).then(function(_projectTokenController) {
+  //   //        assert.ok(_projectTokenController.address);
+  //   //        projectTokenController = _projectTokenController;
+  //   //        console.log('projectTokenController created at address', _projectTokenController.address);
+  //   //        done();
+  //   //      });
+  //   //    });
 
-      TrellethManagerInstance.trellethIt("mycard1", "board1").then(function(_res) {});
-    });
-  });
+  //   it("board should TrellETH a Card", function(done) {
 
-  describe('Happy Flow', function() {
+  //     TrellethManagerInstance.trellethIt.estimateGas("mycard1", "board1").then(function(_res) {
+  //       console.log('estimated gas for trellethIt=', _res);
+  //     });
 
-    it("accounts[0] should appoint accounts[1] as supplier to the Card", function(done) {
-      //var tc = CardTokenController.at(cardTokenController);
-      cardTokenController.assignSupplier(accounts[1]).then(function(_res) {
-        done();
-      });
-    });
+  //     var events = TrellethManagerInstance.TrellEthed({
+  //       fromBlock: "latest"
+  //     });
+  //     var listener = events.watch(function(error, result) {
+  //       // This will catch all events, regardless of how they originated.
+  //       if (error == null && result.args) {
+  //         console.log(result.args);
+  //         //cardToken = result.args.cardToken;
+  //         //cardTokenController = CardTokenController.at(result.args.cardTokenController);
+  //         listener.stopWatching();
+  //         done();
+  //       }
+  //     });
 
-    it("accounts[1] should claim the Card", function(done) {
+  //     TrellethManagerInstance.trellethIt("mycard1", "board1").then(function(_res) {});
+  //   });
+  // });
 
-      var events = cardTokenController.CardClaimed({
-        fromBlock: "latest"
-      });
-      var listener = events.watch(function(error, result) {
-        // This will catch all events, regardless of how they originated.
-        if (error == null && result.args) {
-          console.log(result.args);
-          listener.stopWatching();
-          done();
-        }
-      });
+  // describe('Happy Flow', function() {
 
-      cardTokenController.claim({
-        from: accounts[1]
-      }).then(function(_res) {});
-    });
+  //   it("accounts[0] should appoint accounts[1] as supplier to the Card", function(done) {
+  //     //var tc = CardTokenController.at(cardTokenController);
+  //     cardTokenController.assignSupplier(accounts[1]).then(function(_res) {
+  //       done();
+  //     });
+  //   });
 
-   it("accounts[0] should approve the work", function(done) {
-      //var tc = CardTokenController.at(cardTokenController);
-      cardTokenController.approve().then(function(_res) {
-        done();
-      });
-    });
+  //   it("accounts[1] should claim the Card", function(done) {
+
+  //     var events = cardTokenController.CardClaimed({
+  //       fromBlock: "latest"
+  //     });
+  //     var listener = events.watch(function(error, result) {
+  //       // This will catch all events, regardless of how they originated.
+  //       if (error == null && result.args) {
+  //         console.log(result.args);
+  //         listener.stopWatching();
+  //         done();
+  //       }
+  //     });
+
+  //     cardTokenController.claim({
+  //       from: accounts[1]
+  //     }).then(function(_res) {});
+  //   });
+
+  //  it("accounts[0] should approve the work", function(done) {
+  //     //var tc = CardTokenController.at(cardTokenController);
+  //     cardTokenController.approve().then(function(_res) {
+  //       done();
+  //     });
+  //   });
 
 
-  });
+  //  });
 
 
   // describe('Deploy MiniMeToken Token & TrellethTokenController', function() {

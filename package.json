@@ -1,0 +1,25 @@
+{
+  "name": "proto-powerup",
+  "version": "1.0.0",
+  "description": "## usage ``` truffle compile truffle test (TODO) ```",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trelleth/proto-powerup.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trelleth/proto-powerup/issues"
+  },
+  "homepage": "https://github.com/trelleth/proto-powerup#readme",
+  "dependencies": {
+    "generate-contract-interface": "^0.1.13"
+  }
+}
